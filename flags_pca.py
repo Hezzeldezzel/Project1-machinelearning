@@ -10,9 +10,9 @@ from scipy.linalg import svd
 
 N = len(X)
 X = X[:,1:]
-G = np.empty((len(X), len(X[0])))
-for i in enumerate(range(0, len(attributeNames))):
-    G[:, i] = np.asarray(X[i])
+G = np.zeros((len(X), len(X[0])))
+for i in range(0, len(attributeNames)):
+    G[i] = X[i]
 
 
 # Subtract mean value from data
