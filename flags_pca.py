@@ -8,11 +8,18 @@ from flags_load_data import X, attributeNames
 import matplotlib.pyplot as plt
 from scipy.linalg import svd
 
+
+
 N = len(X)
+M = len(X[0])
 X = X[:,1:]
 G = np.zeros((len(X), len(X[0])))
-for i in range(0, len(attributeNames)):
-    G[i] = X[i]
+
+for i in range(0, len(X)):
+    for j in range(0, len(X[0])):
+        G[i,j] = X[i,j]
+
+
 
 
 # Subtract mean value from data
