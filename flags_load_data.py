@@ -26,14 +26,26 @@ X = raw_data[:, cols]
 attributeNames = np.array(['NAME', 'LAMA', 'ZONE', 'AREA', 'POPU', 'LANG', 'RELI', 'BARS', 'STRI', 'COLO', 'RED', 'GREE', 'BLUE', 'YELLO', 'WHIT', 'BLAC', 'ORAN', 'MAIN', 'CIRC', 'CROS', 'SALT', 'QUAR', 'SUNS', 'CRES', 'TRIA', 'ICON', 'ANIM', 'TEXT', 'TOPL', 'BOTR'])
 
 
+# Colors is extracted from the last row which has all 8 colors and stored uniquely in a dictionary
+colorLabel = raw_data[:,-1]
+colorNames = np.unique(colorLabel)
+colorDict = dict(zip(colorNames,range(len(colorNames))))
+
+# The attributes with colors are now replaced by numbers according to dictionary
+variable = ['MAIN', 'TOPL', 'BOTR']
+for n in variable:
+    X[:, np.where(attributeNames==n)[0][0]] = np.array([colorDict[cl] for cl in X[:, np.where(attributeNames==n)[0][0]]])
+
 
 # One-out-of-K coding for the relevant attributes
-variable = ['LAMA','ZONE','LANG','RELI']
+#variable = ['LAMA','ZONE','LANG','RELI','MAIN', 'TOPL', 'BOTR']
+variable = ['TOPL']
 for z in variable:
     cat = np.array(X[:, np.where(attributeNames==z)], dtype=int).T
-    K = cat.max()
+    K = cat.max()-cat.min()+1
+    cat = cat-cat.min()
     cat_encoding = np.zeros((cat.size, K))
-    cat_encoding[np.arange(cat.size), cat-1] = 1
+    cat_encoding[np.arange(cat.size), cat] = 1
     
     # The new one-out-of-K coding is inserted at the origianal column in the X-matrix. The X-matrix has now more columns than before
     X = np.concatenate( (X[:, :np.where(attributeNames==z)[0][0]], cat_encoding, X[:, np.where(attributeNames==z)[0][0]+1:]), axis=1)
@@ -48,3 +60,7 @@ for z in variable:
 
 # A combined matrix with header
 X_c = np.insert(X, 0 ,attributeNames, 0)
+
+#for i in range(0,len(X[0])):
+#    print(attributeNames[i])
+#    print(str(X[0,i]))
