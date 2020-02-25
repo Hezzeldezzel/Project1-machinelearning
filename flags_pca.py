@@ -4,25 +4,25 @@ import numpy as np
 
 # Start by loading flags data
 # "classification format":
-from flags_load_data import X, attributeNames
+from flags_load_data import Xstand, attributeNames
 import matplotlib.pyplot as plt
 from scipy.linalg import svd
 
 
+# Dette gøres for at ændre matrixens værdiger fra ojekter til float
+N = len(Xstand)
+M = len(Xstand[0])
+Xstand_float = np.zeros((len(Xstand), len(Xstand[0])))
 
-N = len(X)
-M = len(X[0])
-G = np.zeros((len(X), len(X[0])))
-
-for i in range(0, len(X)):
-    for j in range(0, len(X[0])):
-        G[i,j] = X[i,j]
+for i in range(0, len(Xstand)):
+    for j in range(0, len(Xstand[0])):
+        Xstand_float[i,j] = Xstand[i,j]
 
 
 
 
 # Subtract mean value from data
-Y = G - np.ones((N,1))*G.mean(axis=0)
+Y = Xstand_float - np.ones((N,1))*Xstand_float.mean(axis=0)
 
 # PCA by computing SVD of Y
 U,S,V = svd(Y,full_matrices=False)

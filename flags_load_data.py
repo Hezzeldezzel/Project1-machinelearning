@@ -65,6 +65,15 @@ X_c = np.insert(X, 0 ,attributeNames, 0)
 X_country = X[:,0]
 X = X[:,1:]
 
+# Sletter kollone 60 da det er den række som har en farve der ikke findes og der for er en række fuld af 0'er
+X=np.delete(X,60,1)
+
+# Her standadiseres atributterne 
+Xstand=np.zeros((len(X), len(X[0])))
+for i in range(0, len(X)):
+    for j in range(0, len(X[0])):
+        Xstand[i,j] = (X[i,j]-X[:,j].mean(axis=0))/np.std(X[:,j])
+
 
 
 #for i in range(0,len(X[0])):
