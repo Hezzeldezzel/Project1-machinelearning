@@ -27,3 +27,12 @@ attributeNames = np.array(['NAME', 'LAMA', 'ZONE', 'AREA', 'POPU', 'LANG', 'RELI
 
 # A combined matrix with header
 X_c = np.insert(X, 0 ,attributeNames, 0)
+
+
+# One-out-of-K coding 
+ZONE_cat = np.array(X[:, np.where(attributeNames=='ZONE')], dtype=int).T
+ZONE_K = ZONE_cat.max()
+ZONE_encoding = np.zeros((ZONE_cat.size, ZONE_K))
+ZONE_encoding[np.arange(ZONE_cat.size), ZONE_cat-1] = 1
+
+X2 = np.concatenate( (X[:, :2], ZONE_encoding, X[:, 3:]), axis=1)
