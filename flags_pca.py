@@ -23,7 +23,7 @@ for i in range(0, len(X)):
 
 
 # Subtract mean value from data
-Y = X - np.ones((N,1))*X.mean(axis=0)
+Y = G - np.ones((N,1))*G.mean(axis=0)
 
 # PCA by computing SVD of Y
 U,S,V = svd(Y,full_matrices=False)
