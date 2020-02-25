@@ -12,7 +12,7 @@ import numpy as np
 import pandas as pd
 
 # Load the flags data using the Pandas library
-filename = '../Data/flag.data'
+filename = 'flag.data'
 df = pd.read_csv(filename, header=None)
 
 # Convert the dataframe to numpy arrays
