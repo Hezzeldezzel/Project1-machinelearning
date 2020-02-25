@@ -29,10 +29,22 @@ attributeNames = np.array(['NAME', 'LAMA', 'ZONE', 'AREA', 'POPU', 'LANG', 'RELI
 X_c = np.insert(X, 0 ,attributeNames, 0)
 
 
-# One-out-of-K coding 
-ZONE_cat = np.array(X[:, np.where(attributeNames=='ZONE')], dtype=int).T
-ZONE_K = ZONE_cat.max()
-ZONE_encoding = np.zeros((ZONE_cat.size, ZONE_K))
-ZONE_encoding[np.arange(ZONE_cat.size), ZONE_cat-1] = 1
+# One-out-of-K coding for the relevant attributes
+variable = ['LAMA','ZONE','LANG','RELI']
+for z in variable:
+    cat = np.array(X[:, np.where(attributeNames==z)], dtype=int).T
+    K = cat.max()
+    cat_encoding = np.zeros((cat.size, K))
+    cat_encoding[np.arange(cat.size), cat-1] = 1
+    
+    # The new one-out-of-K coding is inserted at the origianal column in the X-matrix. The X-matrix has now more columns than before
+    X = np.concatenate( (X[:, :np.where(attributeNames==z)[0][0]], cat_encoding, X[:, np.where(attributeNames==z)[0][0]+1:]), axis=1)
+        
+    # The attribute names are now updated to as many K's
+    insert_attribute = np.empty(K,dtype='<U6')
+    for x in range(0,K):
+        insert_attribute[x] = z + str(x)
+        
+    attributeNames = np.concatenate( (attributeNames[:np.where(attributeNames==z)[0][0]],insert_attribute,attributeNames[np.where(attributeNames==z)[0][0]+1:]),axis=0)
+    
 
-X2 = np.concatenate( (X[:, :2], ZONE_encoding, X[:, 3:]), axis=1)
