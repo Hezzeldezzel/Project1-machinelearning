@@ -25,8 +25,6 @@ X = raw_data[:, cols]
 # The attribute names are not stored in the data set, manually defined here
 attributeNames = np.array(['NAME', 'LAMA', 'ZONE', 'AREA', 'POPU', 'LANG', 'RELI', 'BARS', 'STRI', 'COLO', 'RED', 'GREE', 'BLUE', 'YELLO', 'WHIT', 'BLAC', 'ORAN', 'MAIN', 'CIRC', 'CROS', 'SALT', 'QUAR', 'SUNS', 'CRES', 'TRIA', 'ICON', 'ANIM', 'TEXT', 'TOPL', 'BOTR'])
 
-# A combined matrix with header
-X_c = np.insert(X, 0 ,attributeNames, 0)
 
 
 # One-out-of-K coding for the relevant attributes
@@ -46,5 +44,7 @@ for z in variable:
         insert_attribute[x] = z + str(x)
         
     attributeNames = np.concatenate( (attributeNames[:np.where(attributeNames==z)[0][0]],insert_attribute,attributeNames[np.where(attributeNames==z)[0][0]+1:]),axis=0)
-    
 
+
+# A combined matrix with header
+X_c = np.insert(X, 0 ,attributeNames, 0)
