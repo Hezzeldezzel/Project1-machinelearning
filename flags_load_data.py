@@ -11,6 +11,7 @@ Created on Tue Feb 18 15:37:34 2020
 import numpy as np
 import pandas as pd
 
+
 # Load the flags data using the Pandas library
 filename = 'flag.data'
 df = pd.read_csv(filename, header=None)
@@ -38,8 +39,8 @@ for n in variable:
 
 
 # One-out-of-K coding for the relevant attributes
-#variable = ['LAMA','ZONE','LANG','RELI','MAIN', 'TOPL', 'BOTR']
-variable = ['TOPL']
+variable = ['LAMA','ZONE','LANG','RELI','MAIN', 'TOPL', 'BOTR']
+#variable = ['TOPL']
 for z in variable:
     cat = np.array(X[:, np.where(attributeNames==z)], dtype=int).T
     K = cat.max()-cat.min()+1
@@ -60,6 +61,9 @@ for z in variable:
 
 # A combined matrix with header
 X_c = np.insert(X, 0 ,attributeNames, 0)
+
+X_country = X[1,:]
+X = X[:,1:]
 
 #for i in range(0,len(X[0])):
 #    print(attributeNames[i])

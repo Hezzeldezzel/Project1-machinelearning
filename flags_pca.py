@@ -12,7 +12,6 @@ from scipy.linalg import svd
 
 N = len(X)
 M = len(X[0])
-X = X[:,1:]
 G = np.zeros((len(X), len(X[0])))
 
 for i in range(0, len(X)):
