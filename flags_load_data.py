@@ -62,8 +62,10 @@ for z in variable:
 # A combined matrix with header
 X_c = np.insert(X, 0 ,attributeNames, 0)
 
-X_country = X[1,:]
+X_country = X[:,0]
 X = X[:,1:]
+
+
 
 #for i in range(0,len(X[0])):
 #    print(attributeNames[i])
