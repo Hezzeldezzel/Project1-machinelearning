@@ -32,6 +32,7 @@ colorLabel = raw_data[:,-1]
 colorNames = np.unique(colorLabel)
 colorDict = dict(zip(colorNames,range(len(colorNames))))
 
+
 # The attributes with colors are now replaced by numbers according to dictionary
 variable = ['MAIN', 'TOPL', 'BOTR']
 for n in variable:
