@@ -22,22 +22,28 @@ import matplotlib.pyplot as plt
 LAMANames = ['N. America','S. America','Europe','Africa','Asia','Oceania']
 
 
-
-
 attributeNames_c = attributeNames.copy();
 
 
+# Finds the columns of area and population
 i = np.where(attributeNames=='AREA')[0][0]
 j = np.where(attributeNames=='POPU')[0][0]
 
 
+# Defines the used colors in legens
 color = ['r','g', 'b', 'c', 'm', 'y'] 
 
-
+## Begin plot
 plt.title('Area and population, colored by landmass')
 for c in range(len(LAMANames)):
-    plt.scatter(x=X[:, i],
-                y=X[:, j], 
+    
+    # Makes a variable for every c which is used to find the specific columns
+    idx = 'LAMA' + str(c)
+    
+    # The column for each landmass inclued 0's and 1's, which are multiplied for
+    # each loop to the columsn for area and population, respectively
+    plt.scatter(x=X[:, np.where(attributeNames==idx)[0][0]]*X[:,i],
+                y=X[:, np.where(attributeNames==idx)[0][0]]*X[:,j], 
                 c=color[c], 
                 s=50, alpha=0.5,
                 label=LAMANames[c])
