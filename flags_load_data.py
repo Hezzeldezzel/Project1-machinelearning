@@ -65,6 +65,7 @@ X_c = np.insert(X, 0 ,attributeNames, 0)
 
 X_country = X[:,0]
 X = X[:,1:]
+attributeNames = attributeNames[1:]
 
 # Sletter kollone 60 da det er den række som har en farve der ikke findes og der for er en række fuld af 0'er
 X=np.delete(X,60,1)
