@@ -31,7 +31,7 @@ i = np.where(attributeNames=='AREA')[0][0]
 j = np.where(attributeNames=='POPU')[0][0]
 
 
-color = ['r','g', 'b', 'c', 'm', 'y']
+color = ['r','g', 'b', 'c', 'm', 'y'] 
 
 
 plt.title('Area and population, colored by landmass')
