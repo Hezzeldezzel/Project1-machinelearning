@@ -19,8 +19,6 @@ for i in range(0, len(Xstand)):
         Xstand_float[i,j] = Xstand[i,j]
 
 
-
-
 # Subtract mean value from data
 Y = Xstand_float - np.ones((N,1))*Xstand_float.mean(axis=0)
 
@@ -43,5 +41,3 @@ plt.ylabel('Variance explained');
 plt.legend(['Individual','Cumulative','Threshold'])
 plt.grid()
 plt.show()
-
-print('Ran Exercise 2.1.3')
