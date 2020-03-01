@@ -40,10 +40,12 @@ for c in range(len(catNames)):
     # Makes a variable for every c which is used to find the specific columns
     idx = variable + str(c)
     
+    class_mask = X[:, np.where(attributeNames==idx)[0][0]]==1
+    
     # The column for each landmass inclued 0's and 1's, which are multiplied for
     # each loop to the columsn for area and population, respectively
-    plt.scatter(x=X[:, np.where(attributeNames==idx)[0][0]]*X[:,i],
-                y=X[:, np.where(attributeNames==idx)[0][0]]*X[:,j], 
+    plt.scatter(x=X[class_mask,i],
+                y=X[class_mask,j], 
                 c=color[c], 
                 s=50, alpha=0.5,
                 label=catNames[c])
