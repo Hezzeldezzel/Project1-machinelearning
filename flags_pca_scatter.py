@@ -97,3 +97,27 @@ plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 plt.xlabel('PC{0}'.format(i+1))
 plt.ylabel('PC{0}'.format(j+1))
 plt.show()
+
+
+# Colored by if the have the color red
+# INPUT
+catNames = ['Not red in flag', 'Red in flag']
+variable = 'RED'
+
+color = ['lightgray','r']
+
+## Begin plot
+plt.title('Flags data: PCA, colored by red in flag')
+for c in range(len(catNames)):
+    idx = variable
+    
+    class_mask = X[:, np.where(attributeNames==idx)[0][0]]==c
+
+    plt.scatter(x=Z[class_mask, i],
+                y=Z[class_mask, j], 
+                s=50, alpha=0.5, label=catNames[c], color = color[c])
+plt.legend(loc='center left', bbox_to_anchor=(1, 0.5))
+
+plt.xlabel('PC{0}'.format(i+1))
+plt.ylabel('PC{0}'.format(j+1))
+plt.show()
