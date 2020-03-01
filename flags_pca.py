@@ -4,7 +4,7 @@ import numpy as np
 
 # Start by loading flags data
 # "classification format":
-from flags_load_data import Xstand, attributeNames
+from flags_load_data import Xstand
 import matplotlib.pyplot as plt
 from scipy.linalg import svd
 
