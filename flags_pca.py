@@ -28,6 +28,11 @@ U,S,V = svd(Y,full_matrices=False)
 # Compute variance explained by principal components
 rho = (S*S) / (S*S).sum() 
 
+
+# Project the centered data onto principal component space
+Z = Y @ V
+
+
 threshold = 0.9
 
 # Plot variance explained
