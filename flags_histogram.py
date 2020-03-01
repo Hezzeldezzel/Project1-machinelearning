@@ -6,28 +6,48 @@ Created on Thu Feb 27 09:11:33 2020
 """
 
 # Import library and dataset
-from flags_load_data import X, attributeNames
+from flags_load_data import X, attributeNames, colorNames
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.pyplot import (figure, title, subplot, plot, hist, show)
+import numpy as np
+from scipy import stats
 
 
 variable = 'COLO'
 
-df = X[:, np.where(attributeNames==variable)[0][0]]
- 
-# Make default histogram    
-sns.distplot( df , kde=False)
+index = np.where(attributeNames==variable)[0][0]
 
-plt.title('Number of colors in a flag')
-plt.xlabel('# colors in flags')
-plt.ylabel('Values')
+# Number of samples
+N = len(X[:,index])
 
+# Mean
+mu = X[:,index].mean()
 
+# Standard deviation
+s = X[:,index].std(ddof=1)
 
+# Number of bins in histogram
+nbins = len(colorNames)
 
-#sns.plt.show()
- 
-# Control the number of bins
-#sns.distplot( df, bins=20 )
-#sns.plt.show()
+# Plot the histogram
+f = figure()
+title('Number of color in flags: Histogram and theoretical distribution')
+hist(X[:,index], bins=nbins, density=True)
+
+# Over the histogram, plot the theoretical probability distribution function:
+x = np.linspace(X[:,index].min(), X[:,index].max(), 1000)
+pdf = stats.norm.pdf(x,loc=3.2,scale=1)
+plot(x,pdf,'.',color='red')
+
+# Compute empirical mean and standard deviation
+mu_ = X.mean()
+s_ = X.std(ddof=1)
+
+print("Theoretical mean: ", mu)
+print("Theoretical std.dev.: ", s)
+print("Empirical mean: ", mu_)
+print("Empirical std.dev.: ", s_)
+
+show()
