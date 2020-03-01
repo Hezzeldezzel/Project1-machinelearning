@@ -35,6 +35,8 @@ nbins = len(colorNames)
 f = figure()
 title('Number of color in flags: Histogram and theoretical distribution')
 hist(X[:,index], bins=nbins, density=True)
+plt.ylabel('Distribution')
+plt.xlabel('Number of colors in flags')
 
 # Over the histogram, plot the theoretical probability distribution function:
 x = np.linspace(X[:,index].min(), X[:,index].max(), 1000)
@@ -42,8 +44,8 @@ pdf = stats.norm.pdf(x,loc=3.2,scale=1)
 plot(x,pdf,'.',color='red')
 
 # Compute empirical mean and standard deviation
-mu_ = X.mean()
-s_ = X.std(ddof=1)
+mu_ = X[:,index].mean()
+s_ = X[:,index].std(ddof=1)
 
 print("Theoretical mean: ", mu)
 print("Theoretical std.dev.: ", s)
