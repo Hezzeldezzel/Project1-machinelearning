@@ -32,7 +32,6 @@ colorLabel = raw_data[:,-1]
 colorNames = np.unique(colorLabel)
 colorDict = dict(zip(colorNames,range(len(colorNames))))
 
-
 # The attributes with colors are now replaced by numbers according to dictionary
 variable = ['MAIN', 'TOPL', 'BOTR']
 for n in variable:
@@ -75,6 +74,8 @@ Xstand=np.zeros((len(X), len(X[0])))
 for i in range(0, len(X)):
     for j in range(0, len(X[0])):
         Xstand[i,j] = (X[i,j]-X[:,j].mean(axis=0))/np.std(X[:,j])
+
+
 
 
 
