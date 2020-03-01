@@ -12,7 +12,7 @@ import numpy as np
 
 # Start by loading flags data
 # "classification format":
-from flags_load_data import *
+from flags_load_data import X, attributeNames
 
 # Compute vectors with mean, standard deviation, median and range for each attribute of type ratio
 

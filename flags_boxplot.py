@@ -11,27 +11,16 @@ import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
 
-variable = 'COLO'
+variable = 'SUNS'
 
 df = X[:, np.where(attributeNames==variable)[0][0]]
  
 # Make boxplot for one group only
 sns.boxplot( y=df )
 
-plt.title('Number of colors in a flag')
-plt.ylabel('# colors in flags')
+plt.title('Number of sun or star symbols in flag')
+plt.ylabel('# of suns or star symbols in flag')
 
            
-variable = 'POPU'
-
-df = X[:, np.where(attributeNames==variable)[0][0]]
- 
-# Make boxplot for one group only
-sns.boxplot( y=df )
-
-plt.title('Population in round millions')
-plt.ylabel('Population in round millions')
-
-
 
 #sns.plt.show()
