@@ -11,8 +11,10 @@ import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import (figure, title, subplot, plot, hist, show)
+import matplotlib.pyplot as plt; plt.rcdefaults()
 import numpy as np
 from scipy import stats
+import math
 
 
 variable = 'COLO'
@@ -53,3 +55,40 @@ print("Empirical mean: ", mu_)
 print("Empirical std.dev.: ", s_)
 
 show()
+
+
+#########################################################################
+
+variable = 'STRI'
+
+index = np.where(attributeNames==variable)[0][0]
+
+# Number of samples
+N = len(X[:,index])
+
+# Mean
+mu = X[:,index].mean()
+
+# Standard deviation
+s = X[:,index].std(ddof=1)
+
+# Number of bins in histogram
+nbins = math.ceil(1 + 3.222*math.log(len(X),10))
+
+# Plot the histogram
+f = figure()
+hist(X[:,index], bins=nbins, density=True)
+plt.ylabel('Distribution')
+plt.xlabel('Number of stripes in flags')
+
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+
