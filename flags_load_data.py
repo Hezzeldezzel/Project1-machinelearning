@@ -68,6 +68,7 @@ attributeNames = attributeNames[1:]
 
 # Sletter kollone 60 da det er den række som har en farve der ikke findes og der for er en række fuld af 0'er
 X=np.delete(X,60,1)
+attributeNames=np.delete(attributeNames,60)
 
 # Her standadiseres atributterne 
 Xstand=np.zeros((len(X), len(X[0])))
