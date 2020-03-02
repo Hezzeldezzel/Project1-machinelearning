@@ -42,6 +42,6 @@ corrMatrix = df.corr()
 print (corrMatrix)
 
 # Generating the heatmap (correlation matrix)
-sn.set(font_scale=2)
+sn.set(font_scale=1.5)
 fig, ax = plt.subplots(figsize=(30,30))
 sn.heatmap(corrMatrix, annot=False, linewidths=.5, ax=ax, vmin=-1,vmax=1, cmap="RdBu")
