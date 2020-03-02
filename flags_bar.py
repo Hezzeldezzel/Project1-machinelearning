@@ -110,8 +110,9 @@ for c in range(0,len(category)):
 
 category = ['Catholic', 'Other Christian', 'Muslim', 'Buddhist', 'Hindu', 'Ethnic', 'Marxist', 'Others']
 
-plt.bar(category, cont, align='center', alpha=0.5, edgecolor='k', color='r', width=0.4)
-plt.bar(category, cont*1.5, align='center', alpha=0.5, edgecolor='k', color='b', width=0.4)
+plt.bar(category, cont, align='center', alpha=0.5, edgecolor='k', color='r')
 plt.xticks(category, rotation =45)
 plt.ylabel('Percentage')
 plt.show()
+
+
