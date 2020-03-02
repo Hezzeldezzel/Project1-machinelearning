@@ -18,7 +18,7 @@ import math
 
 
 # Number of samples
-N = len(X[:,index])
+N = len(X[:,1])
 
 
 
