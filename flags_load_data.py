@@ -10,7 +10,7 @@ Created on Tue Feb 18 15:37:34 2020
 
 import numpy as np
 import pandas as pd
-
+import math
 
 # Load the flags data using the Pandas library
 filename = 'flag.data'
@@ -38,12 +38,22 @@ for n in variable:
     X[:, np.where(attributeNames==n)[0][0]] = np.array([colorDict[cl] for cl in X[:, np.where(attributeNames==n)[0][0]]])
 
 
-# One-out-of-K coding for the relevant attributes
+
+# One-out-of-K coding for the relevant attributes and make K vector
 variable = ['LAMA','ZONE','LANG','RELI','MAIN', 'TOPL', 'BOTR']
+K_v = np.zeros(len(variable))
+u=0
+
 #variable = ['TOPL']
 for z in variable:
+    
     cat = np.array(X[:, np.where(attributeNames==z)], dtype=int).T
     K = cat.max()-cat.min()+1
+    
+    # save K vector
+    K_v[u] = K
+    u=u+1
+    
     cat = cat-cat.min()
     cat_encoding = np.zeros((cat.size, K))
     cat_encoding[np.arange(cat.size), cat] = 1
@@ -77,9 +87,19 @@ for i in range(0, len(X)):
         Xstand[i,j] = (X[i,j]-X[:,j].mean(axis=0))/np.std(X[:,j])
 
 
+variable = np.asarray(variable)
 
 
-
-#for i in range(0,len(X[0])):
-#    print(attributeNames[i])
-#    print(str(X[0,i]))
+# Forbenious norm på one-out-of-K, hvor søjlerne deles med sqrt(K)
+forb = np.ones(len(attributeNames))
+for p in variable:
+    K_where = np.where(variable==p)[0][0]
+    K = int(K_v[K_where])
+    
+    for w in range(0,K):
+        test = p + str(w)
+        if test=='TOPL2': continue #Denne eksisterer ikke fordi række 60 er slettet
+        Xstand[:, np.where(attributeNames==test)[0][0]] = Xstand[:, np.where(attributeNames==test)[0][0]]/math.sqrt(K)
+        
+        
+        
