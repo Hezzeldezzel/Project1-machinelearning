@@ -36,7 +36,7 @@ M = M+1
 
 ## Crossvalidation
 # Create crossvalidation partition for evaluation
-K = 5
+K = 10
 CV = model_selection.KFold(K, shuffle=True)
 #CV = model_selection.KFold(K, shuffle=False)
 

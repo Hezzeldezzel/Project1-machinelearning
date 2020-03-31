@@ -19,12 +19,13 @@ attributeNames = np.delete(attributeNames,var)
 y = Xstand[:,var]
 
 # Sletter følgende kolonner, da denne giver en singular matrix
-slettes = ['BOTR0','BOTR1','BOTR2','BOTR3','BOTR4','BOTR5','BOTR6','BOTR7','TOPL0', 'TOPL1',
-       'TOPL3', 'TOPL4', 'TOPL5', 'TOPL6', 'TOPL7','MAIN0', 'MAIN1', 'MAIN2', 'MAIN3',
-       'MAIN4', 'MAIN5', 'MAIN6', 'MAIN7','LAMA0', 'LAMA1', 'LAMA2', 'LAMA3', 'LAMA4', 'LAMA5',
-       'ZONE0', 'ZONE1', 'ZONE2', 'ZONE3','TEXT','LANG0', 'LANG1', 'LANG2', 'LANG3', 'LANG4',
-       'LANG5', 'LANG6', 'LANG7', 'LANG8', 'LANG9', 'RELI0', 'RELI1',
-       'RELI2', 'RELI3', 'RELI4', 'RELI5', 'RELI6', 'RELI7','BARS','ORAN','BLAC','ICON']
+slettes = ['BOTR0','BOTR1','BOTR2','BOTR3','BOTR4','BOTR5','BOTR6','BOTR7']
+#slettes = ['BOTR0','BOTR1','BOTR2','BOTR3','BOTR4','BOTR5','BOTR6','BOTR7','TOPL0', 'TOPL1',
+#       'TOPL3', 'TOPL4', 'TOPL5', 'TOPL6', 'TOPL7','MAIN0', 'MAIN1', 'MAIN2', 'MAIN3',
+#       'MAIN4', 'MAIN5', 'MAIN6', 'MAIN7','LAMA0', 'LAMA1', 'LAMA2', 'LAMA3', 'LAMA4', 'LAMA5',
+ #      'ZONE0', 'ZONE1', 'ZONE2', 'ZONE3','TEXT','LANG0', 'LANG1', 'LANG2', 'LANG3', 'LANG4',
+#       'LANG5', 'LANG6', 'LANG7', 'LANG8', 'LANG9', 'RELI0', 'RELI1',
+#       'RELI2', 'RELI3', 'RELI4', 'RELI5', 'RELI6', 'RELI7','BARS','ORAN','BLAC','ICON']
 for z in range(len(slettes)):
     o = slettes[z]
     var = np.where(attributeNames==o)[0][0]
