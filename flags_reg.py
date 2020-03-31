@@ -64,26 +64,20 @@ for train_index, test_index in CV.split(X,y):
     X_train = X[train_index]
     y_train = y[train_index]
     X_test = X[test_index]
-    y_test = y[test_index]
-   # internal_cross_validation = 10    
+    y_test = y[test_index]  
 
     # Standardize outer fold based on training set, and save the mean and standard
     # deviations since they're part of the model (they would be needed for
     # making new predictions) - for brevity we won't always store these in the scripts
-    mu[k, :] = np.mean(X_train[:, 1:], 0)
-    sigma[k, :] = np.std(X_train[:, 1:], 0)
+    #mu[k, :] = np.mean(X_train[:, 1:], 0)
+    #sigma[k, :] = np.std(X_train[:, 1:], 0)
     
-    X_train[:, 1:] = (X_train[:, 1:] - mu[k, :] ) / sigma[k, :] 
-    X_test[:, 1:] = (X_test[:, 1:] - mu[k, :] ) / sigma[k, :] 
-    
+    #X_train[:, 1:] = (X_train[:, 1:] - mu[k, :] ) / sigma[k, :] 
+    #X_test[:, 1:] = (X_test[:, 1:] - mu[k, :] ) / sigma[k, :] 
     
     
     Xty = X_train.T @ y_train
     XtX = X_train.T @ X_train
-    
-    # Compute mean squared error without using the input data at all
-    #Error_train_nofeatures[k] = np.square(y_train-y_train.mean()).sum(axis=0)/y_train.shape[0]
-    #Error_test_nofeatures[k] = np.square(y_test-y_test.mean()).sum(axis=0)/y_test.shape[0]
 
 
     for i in range(len(lambdas)): 
@@ -93,18 +87,31 @@ for train_index, test_index in CV.split(X,y):
         lambdaI[0,0] = 0 # Do no regularize the bias term
         w_rlr[:,k] = np.linalg.solve(XtX+lambdaI,Xty).squeeze() ##################################
         # Compute mean squared error with regularization with lambda
-        Error_train_rlr[k] = np.square(y_train-X_train @ w_rlr[:,k]).sum(axis=0)/y_train.shape[0]
-        Error_test_rlr[k] = np.square(y_test-X_test @ w_rlr[:,k]).sum(axis=0)/y_test.shape[0]
-    
-        # Estimate weights for unregularized linear regression, on entire training set
-        #w_noreg[:,k] = np.linalg.solve(XtX,Xty).squeeze()
-        # Compute mean squared error without regularization
-        #Error_train[i,k] = np.square(y_train-X_train @ w_noreg[:,k]).sum(axis=0)/y_train.shape[0]
-        #Error_test[i,k] = np.square(y_test-X_test @ w_noreg[:,k]).sum(axis=0)/y_test.shape[0]
+        Error_train_rlr[i,k] = np.square(y_train-X_train @ w_rlr[:,k]).sum(axis=0)/y_train.shape[0]
+        Error_test_rlr[i,k] = np.square(y_test-X_test @ w_rlr[:,k]).sum(axis=0)/y_test.shape[0]
       
     k=k+1
     
-print(np.sum(sigma<0.01))
+# Bestemmer middelværdien for error i både train- og testsæt, 
+# for hver lambda værdi, over alle de K folds
+Error_test_rlr_mu = np.zeros(len(Error_test_rlr))
+for n in range(len(Error_test_rlr)):
+    Error_test_rlr_mu[n] = np.mean(Error_test_rlr[n,:])
 
-# Mangler at finde middelværdi af Error_train og Error_split for hver kolonne.
-# Dette angiver error ved hver lambda værdi  valgte interval
+print(Error_test_rlr_mu)
+
+Error_train_rlr_mu = np.zeros(len(Error_train_rlr))
+for n in range(len(Error_train_rlr)):
+    Error_train_rlr_mu[n] = np.mean(Error_train_rlr[n,:])
+
+print(Error_train_rlr_mu)
+
+
+
+subplot(1,1,1)
+loglog(lambdas,Error_test_rlr_mu.T,'b.-',lambdas,Error_train_rlr_mu.T,'r-')
+xlabel('Regularization factor')
+ylabel('Squared error (crossvalidation)')
+legend(['Validation error', 'Train error'])
+grid()
+show()
