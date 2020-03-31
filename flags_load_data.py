@@ -22,10 +22,10 @@ raw_data = df.get_values()
 # Making the data matrix X by indexing into data.
 cols = range(0, 30) 
 X = raw_data[:, cols]
-
+X2 = X
 # The attribute names are not stored in the data set, manually defined here
 attributeNames = np.array(['NAME', 'LAMA', 'ZONE', 'AREA', 'POPU', 'LANG', 'RELI', 'BARS', 'STRI', 'COLO', 'RED', 'GREE', 'BLUE', 'YELL', 'WHIT', 'BLAC', 'ORAN', 'MAIN', 'CIRC', 'CROS', 'SALT', 'QUAR', 'SUNS', 'CRES', 'TRIA', 'ICON', 'ANIM', 'TEXT', 'TOPL', 'BOTR'])
-
+attributeNames2 = attributeNames
 
 # Colors is extracted from the last row which has all 8 colors and stored uniquely in a dictionary
 colorLabel = raw_data[:,-1]
@@ -71,6 +71,11 @@ for z in variable:
 
 # A combined matrix with header
 X_c = np.insert(X, 0 ,attributeNames, 0)
+
+X2_country = X2[:,0]
+X2 = X2[:,1:].astype(float)
+
+attributeNames2 = attributeNames2[1:]
 
 X_country = X[:,0]
 X = X[:,1:]
