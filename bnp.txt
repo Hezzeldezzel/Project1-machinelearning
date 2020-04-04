@@ -136,7 +136,7 @@ Dominican-Republic,1334
 El-Salvador,914
 Equatorial-Guinea,404
 Faeroes,14000
-Falklands-Malvinas,na
+Falklands-Malvinas,16730
 French-Guiana,614
 French-Polynesia,17848
 Germany-DDR,9679
@@ -169,7 +169,7 @@ South-Africa,3171
 South-Korea,6677
 South-Yemen,344
 Sri-Lanka,541
-St-Helena,na
+St-Helena,2004
 St-Kitts-Nevis,5396
 St-Lucia,3368
 St-Vincent,2179
@@ -186,7 +186,7 @@ UK,19134
 US-Virgin-Isles,6855
 USA,23651
 USSR,3891
-Vatican-City,na
+Vatican-City,16474
 Venezuela,2395
 Vietnam,95
 Western-Samoa,707

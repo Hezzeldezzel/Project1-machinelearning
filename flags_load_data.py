@@ -15,23 +15,24 @@ import math
 # Load the flags data using the Pandas library
 filename = 'flag.data'
 df = pd.read_csv(filename, header=None)
+df = df.get_values()
 bnp = pd.read_csv('bnp.txt',header=None)
-bnp = bnp.get_values()
+bnp = np.delete(bnp.get_values(),0,1)
 
     
 # Convert the dataframe to numpy arrays
-raw_data = np.concatenate((df.get_values(),bnp[:,1]),axis=1)
+raw_data = np.concatenate((df,bnp),axis=1)
 
 # Making the data matrix X by indexing into data.
 cols = range(0, 31) 
 X = raw_data[:, cols]
 X2 = X
 # The attribute names are not stored in the data set, manually defined here
-attributeNames = np.array(['NAME', 'LAMA', 'ZONE', 'AREA', 'POPU', 'LANG', 'RELI', 'BARS', 'STRI', 'COLO', 'RED', 'GREE', 'BLUE', 'YELL', 'WHIT', 'BLAC', 'ORAN', 'MAIN', 'CIRC', 'CROS', 'SALT', 'QUAR', 'SUNS', 'CRES', 'TRIA', 'ICON', 'ANIM', 'TEXT', 'TOPL', 'BOTR'])
+attributeNames = np.array(['NAME', 'LAMA', 'ZONE', 'AREA', 'POPU', 'LANG', 'RELI', 'BARS', 'STRI', 'COLO', 'RED', 'GREE', 'BLUE', 'YELL', 'WHIT', 'BLAC', 'ORAN', 'MAIN', 'CIRC', 'CROS', 'SALT', 'QUAR', 'SUNS', 'CRES', 'TRIA', 'ICON', 'ANIM', 'TEXT', 'TOPL', 'BOTR','BNP'])
 attributeNames2 = attributeNames
 
 # Colors is extracted from the last row which has all 8 colors and stored uniquely in a dictionary
-colorLabel = raw_data[:,-1]
+colorLabel = raw_data[:,-2]
 colorNames = np.unique(colorLabel)
 colorDict = dict(zip(colorNames,range(len(colorNames))))
 
