@@ -38,7 +38,7 @@ M = M+1
 ## Crossvalidation
 # Create crossvalidation partition for evaluation
 K = 10
-CV = model_selection.KFold(K, shuffle=True)
+CV = model_selection.KFold(K, shuffle=False)
 #CV = model_selection.KFold(K, shuffle=False)
 
 # Values of lambda
@@ -106,12 +106,11 @@ for n in range(len(Error_train_rlr)):
 
 print(Error_train_rlr_mu)
 
-
-
+        
 subplot(1,1,1)
-loglog(lambdas,Error_test_rlr_mu.T,'b.-',lambdas,Error_train_rlr_mu.T,'r-')
+loglog(lambdas,Error_train_rlr_mu.T,'b.-',lambdas,Error_test_rlr_mu.T,'r.-')
 xlabel('Regularization factor')
 ylabel('Squared error (crossvalidation)')
-legend(['Validation error', 'Train error'])
+legend(['Train error','Validation error'])
 grid()
 show()
