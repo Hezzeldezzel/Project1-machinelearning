@@ -10,7 +10,7 @@ from toolbox_02450 import rlr_validate
 
 from flags_load_data import Xstand, attributeNames
 
-var = np.where(attributeNames=='AREA')[0][0]
+var = np.where(attributeNames=='BNP')[0][0]
 
 # Ændrer navnet på de standardiserede data
 X = Xstand
