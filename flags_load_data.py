@@ -15,12 +15,15 @@ import math
 # Load the flags data using the Pandas library
 filename = 'flag.data'
 df = pd.read_csv(filename, header=None)
+bnp = pd.read_csv('bnp.txt',header=None)
+bnp = bnp.get_values()
 
+    
 # Convert the dataframe to numpy arrays
-raw_data = df.get_values()
+raw_data = np.concatenate((df.get_values(),bnp[:,1]),axis=1)
 
 # Making the data matrix X by indexing into data.
-cols = range(0, 30) 
+cols = range(0, 31) 
 X = raw_data[:, cols]
 X2 = X
 # The attribute names are not stored in the data set, manually defined here
