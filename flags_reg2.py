@@ -12,6 +12,10 @@ import torch
 from toolbox_02450 import train_neural_net, draw_neural_net
 from flags_load_data import Xstand, attributeNames
 
+import time
+
+time_start = time.clock()
+
 # Import split as used in other assignment
 #from flags_reg import CV
 
@@ -24,7 +28,7 @@ attributeNames = np.delete(attributeNames,var)
 y = Xstand[:,var]
 
 # Sletter følgende kolonner, da disse giver en singular matrix
-slettes = ['BOTR3','BOTR5']
+slettes = ['TOPL0', 'TOPL1', 'TOPL3', 'TOPL4', 'TOPL5', 'TOPL6', 'TOPL7','BOTR0','BOTR1','BOTR2','BOTR3','BOTR4','BOTR5','BOTR6','BOTR7']
 for z in range(len(slettes)):
     o = slettes[z]
     var = np.where(attributeNames==o)[0][0]
@@ -79,7 +83,7 @@ if do_pca_preprocessing:
 n_replicates = 3        # number of networks trained in each k-fold
 max_iter = 5000
 
-hidden_units = [1,2,3,4,5]
+hidden_units = [1,2,3]
 
 # Setup figure for display of learning curves and error rates in fold
 summaries, summaries_axes = plt.subplots(1,2, figsize=(10,5))
@@ -337,7 +341,6 @@ print('- R^2 test:     {0}\n'.format((Error_test_nofeatures.sum()-Error_test_rlr
 #    print('{:>15} {:>15}'.format(attributeNames[m], np.round(w_rlr[m,-1],2)))
 
 
-
 # MAKE THE SUMMARY TABLE
 table = np.zeros([K,6]).astype(object)
 
@@ -349,7 +352,9 @@ for i in range(0,K):
     table[i,4] = Error_test_rlr[i][0]
     table[i,5] = Error_test[i][0]
 
+
 dash = '-' * 80
+
 
 print(dash)
 print('{:<10s}{:>18s}{:>33s}{:>18s}'.format('Outer fold','ANN','Linear regression','Baseline'))
@@ -358,7 +363,15 @@ print(dash)
 for i in range(len(table)):
       print('{:<10d}{:>10d}{:>17f}{:>14d}{:>12f}{:>16f}'.format(int(table[i][0]),int(table[i][1]),table[i][2],int(table[i][3]),table[i][4],table[i][5]))
 print(dash)
+print('{:<10s}{:>27f}{:>26f}{:>16f}'.format('MSE',np.sqrt(np.mean(Error_test_ANN)),np.sqrt(np.mean(Error_test_rlr)),np.sqrt(np.mean(Error_test))))
+print(dash)
+print('MSE with model predicting each observation is zero, {0}'.format(np.mean(y_train.data.numpy()**2)))
+print(dash)
 
+
+
+time_elapsed = (time.clock() - time_start)
+print('The script execution time was: ',time_elapsed/60,' min')
 
 
 
