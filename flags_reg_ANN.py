@@ -9,7 +9,7 @@ from scipy import stats
 
 from flags_load_data import Xstand, attributeNames
 
-var = np.where(attributeNames=='AREA')[0][0]
+var = np.where(attributeNames=='BNP')[0][0]
 
 # Ændrer navnet på de standardiserede data
 X = Xstand
@@ -45,7 +45,7 @@ if do_pca_preprocessing:
 
 
 # Parameters for neural network classifier
-n_hidden_units = 2      # number of hidden units
+n_hidden_units = 10      # number of hidden units
 n_replicates = 1        # number of networks trained in each k-fold
 max_iter = 2000
 
@@ -91,7 +91,7 @@ for (k, (train_index, test_index)) in enumerate(CV.split(X,y)):
     # Determine estimated class labels for test set
     y_test_est = net(X_test)
     
-    # Determine errors and errors
+    # Determine errors and ms errors
     se = (y_test_est.float().data.numpy().flatten()-y_test.float().data.numpy().flatten())**2 # squared error
     mse = (sum(se)/len(y_test)) #mean
     errors.append(mse) # store error rate for current CV fold 
@@ -118,8 +118,7 @@ plt.show()
 #tf =  [str(net[i]) for i in [1,2]]
 #draw_neural_net(weights, biases, tf, attribute_names=attributeNames)
 
-# Print the average classification error rate
-print('\nEstimated generalization error, RMSE: {0}'.format(round(np.sqrt(np.mean(errors)), 4)))
+
 
 # When dealing with regression outputs, a simple way of looking at the quality
 # of predictions visually is by plotting the estimated value as a function of 
@@ -132,7 +131,7 @@ axis_range = [np.min([y_est.flatten(), y_true])-1,np.max([y_est.flatten(), y_tru
 plt.plot(axis_range,axis_range,'k--')
 plt.plot(y_true, y_est,'ob',alpha=.25)
 plt.legend(['Perfect estimation','Model estimations'])
-plt.title('Area of a country: estimated versus true value (for last CV-fold)')
+plt.title('BNP of a country: estimated versus true value (for last CV-fold)')
 plt.ylim(axis_range); plt.xlim(axis_range)
 plt.xlabel('True value')
 plt.ylabel('Estimated value')
@@ -140,6 +139,8 @@ plt.grid()
 
 plt.show()
 
+# Print the average classification error rate
+print('\nEstimated generalization error, RMSE: {0}'.format(round(np.sqrt(np.mean(errors)), 4)))
 
 print('MSE with model predicting each observation is zero')
 print(np.mean((y_train.data.numpy()**2)))
