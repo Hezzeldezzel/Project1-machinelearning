@@ -8,6 +8,7 @@ import torch
 from sklearn import model_selection
 from toolbox_02450 import train_neural_net, draw_neural_net
 from scipy import stats
+import statistics as ss
 
 # =============================================================================
 # # Load Matlab data file and extract variables of interest
@@ -19,7 +20,10 @@ from scipy import stats
 # =============================================================================
 from flags_load_data import X2, attributeNames2
 
-attributeNames = attributeNames2
+attributeNames2 = np.delete(attributeNames2,5)
+attributeNames = list()
+for k in range(0,len(attributeNames2)):
+    attributeNames.append(attributeNames2[k].astype(str))
 # read XOR DATA from matlab datafile
 
 
@@ -46,12 +50,12 @@ C = len(classNames)
 X = stats.zscore(X);
 
 # Parameters for neural network classifier
-n_hidden_units = 2     # number of hidden units
-n_replicates = 2        # number of networks trained in each k-fold
+n_hidden_units = 5     # number of hidden units
+n_replicates = 10       # number of networks trained in each k-fold
 max_iter = 10000         # stop criterion 2 (max epochs in training)
 
 # K-fold crossvalidation
-K = 3                   # only five folds to speed up this example
+K = 10            # only five folds to speed up this example
 CV = model_selection.KFold(K, shuffle=True)
 # Make figure for holding summaries (errors and learning curves)
 summaries, summaries_axes = plt.subplots(1,2, figsize=(10,5))
@@ -64,7 +68,8 @@ model = lambda: torch.nn.Sequential(
                     torch.nn.Linear(M, n_hidden_units), #M features to H hiden units
                     torch.nn.Tanh(),   # 1st transfer function,
                     torch.nn.Linear(n_hidden_units, C), # H hidden units to 1 output neuron
-                    torch.nn.Sigmoid() # final tranfer function
+                    torch.nn.Softmax(dim=1) # final tranfer function, normalisation of logit output   
+                    #torch.nn.Sigmoid() # final tranfer function
                     )
 loss_fn = torch.nn.CrossEntropyLoss() ### torch cross entropy loss
 
@@ -95,11 +100,16 @@ for k, (train_index, test_index) in enumerate(CV.split(X,y)):
 #     y_test_est = (y_sigmoid>.5).to(torch.uint8)#.flatten()
 # =============================================================================
     
-    values, y_test_est = torch.max(y_sigmoid, axis=1)
+    values, y_test_est2 = torch.max(y_sigmoid, axis=1)
+    
+    # Determine probability of each class using trained network
+    softmax_logits = net(torch.tensor(X_test, dtype=torch.float))
+    # Get the estimated class as the class with highest probability (argmax on softmax_logits)
+    y_test_est = (torch.max(softmax_logits, dim=1)[1]).to(torch.uint8)
 
 
     # Determine errors and errors
-    y_test = y_test.to(torch.uint8)#.flatten()
+    y_test = y_test.to(torch.uint8)
 
     e = y_test_est != y_test
     error_rate = (sum(e).type(torch.float)/len(y_test)).data.numpy()
@@ -124,9 +134,9 @@ print('Diagram of best neural net in last fold:')
 weights = [net[i].weight.data.numpy().T for i in [0,2]]
 biases = [net[i].bias.data.numpy() for i in [0,2]]
 tf =  [str(net[i]) for i in [1,3]]
-draw_neural_net(weights, biases, tf, attribute_names=attributeNames)
+draw_neural_net(weights, biases, tf, attributeNames,classNames)
 
 # Print the average classification error rate
 print('\nGeneralization error/average error rate: {0}%'.format(round(100*np.mean(errors),4)))
 
-print('Ran Exercise 8.2.5')
+print('Ran Exercise Magnus')
