@@ -8,8 +8,10 @@ from toolbox_02450 import train_neural_net, draw_neural_net
 from scipy import stats
 
 from flags_load_data import Xstand, attributeNames
+#Xstand = stats.zscore(Xstand);
 
 var = np.where(attributeNames=='BNP')[0][0]
+
 
 # Ændrer navnet på de standardiserede data
 X = Xstand
@@ -18,7 +20,8 @@ attributeNames = np.delete(attributeNames,var)
 y = Xstand[:,var]
 
 # Sletter følgende kolonner, da denne giver en singular matrix
-slettes = ['BOTR3','BOTR5']
+slettes = ['TOPL0', 'TOPL1', 'TOPL3', 'TOPL4', 'TOPL5', 'TOPL6', 'TOPL7','BOTR0','BOTR1','BOTR2','BOTR3','BOTR4','BOTR5','BOTR6','BOTR7']
+
 
 for z in range(len(slettes)):
     o = slettes[z]
@@ -29,25 +32,11 @@ for z in range(len(slettes)):
 N, M = X.shape
 C = 2
 
-# Normalize data
-#X = stats.zscore(X)
-                
-## Normalize and compute PCA (change to True to experiment with PCA preprocessing)
-do_pca_preprocessing = False
-if do_pca_preprocessing:
-    Y = stats.zscore(X,0)
-    U,S,V = np.linalg.svd(Y,full_matrices=False)
-    V = V.T
-    #Components to be included as features
-    k_pca = 3
-    X = X @ V[:,:k_pca]
-    N, M = X.shape
-
 
 # Parameters for neural network classifier
-n_hidden_units = 10      # number of hidden units
+n_hidden_units = 3      # number of hidden units
 n_replicates = 1        # number of networks trained in each k-fold
-max_iter = 2000
+max_iter = 5000
 
 # K-fold crossvalidation
 K = 3                   # only three folds to speed up this example

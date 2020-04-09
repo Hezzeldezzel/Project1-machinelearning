@@ -45,7 +45,7 @@ M = M+1
 
 ## Crossvalidation
 # Create crossvalidation partition for evaluation
-K = 10
+K = 3
 CV = model_selection.KFold(K, shuffle=True)
 #CV = model_selection.KFold(K, shuffle=False)
 
@@ -68,19 +68,10 @@ w_noreg = np.empty((M,K))
 
 
 ### ANN ###
-## Normalize and compute PCA (change to True to experiment with PCA preprocessing)
-do_pca_preprocessing = False
-if do_pca_preprocessing:
-    Y = stats.zscore(X,0)
-    U,S,V = np.linalg.svd(Y,full_matrices=False)
-    V = V.T
-    #Components to be included as features
-    k_pca = 3
-    X = X @ V[:,:k_pca]
-    N, M = X.shape
+
 
 # Parameters for neural network classifier
-n_replicates = 3        # number of networks trained in each k-fold
+n_replicates = 2        # number of networks trained in each k-fold
 max_iter = 5000
 
 hidden_units = [1,2,3]
@@ -90,6 +81,11 @@ summaries, summaries_axes = plt.subplots(1,2, figsize=(10,5))
 # Make a list for storing assigned color of learning curve for up to K=10
 color_list = ['tab:orange', 'tab:green', 'tab:purple', 'tab:brown', 'tab:pink',
               'tab:gray', 'tab:olive', 'tab:cyan', 'tab:red', 'tab:blue']
+
+
+#Make dummy variable
+Error_test_ANN_best = 10
+Error_test_best = 10
 
 ### ANN END ###
 
@@ -280,41 +276,42 @@ for train_index, test_index in CV.split(X,y):
 
     ###### ANN MODEL END #####
 
-    # Display the results for the last cross-validation fold
-    if k == K-1:
-        figure(k, figsize=(12,8))
-        subplot(1,2,1)
-        semilogx(lambdas,mean_w_vs_lambda.T[:,1:],'.-') # Don't plot the bias term
-        xlabel('Regularization factor')
-        ylabel('Mean Coefficient Values')
-        grid()
-        # You can choose to display the legend, but it's omitted for a cleaner 
-        # plot, since there are many attributes
-        #legend(attributeNames[1:], loc='best')
-        
-        subplot(1,2,2)
-        title('Optimal lambda: 1e{0}'.format(np.log10(opt_lambda)))
-        loglog(lambdas,train_err_vs_lambda.T,'b.-',lambdas,test_err_vs_lambda.T,'r.-')
-        xlabel('Regularization factor')
-        ylabel('Squared error (crossvalidation)')
-        legend(['Train error','Validation error'])
-        grid()
+    # Save the results for the best cross-validation fold (linear regression model)
+    if Error_test[k] < Error_test_best:
+        K_b = k
+        Error_test_best = Error_test[k]
+        mean_w_vs_lambda_best = mean_w_vs_lambda
+        train_err_vs_lambda_best = train_err_vs_lambda
+        test_err_vs_lambda_best = test_err_vs_lambda
+
+    # Save the data if the current fold is the fold with minimum error (ANN model)
+    if Error_test_ANN[k] < Error_test_ANN_best:
+        K_best = k
+        Error_test_ANN_best = Error_test_ANN[k]
+        y_test_est_best = y_test_est
+        y_test_best = y_test
+
 
 
     k+=1
+### OUTER LOOP END HERE ###
 
-show()
+summaries_axes[1].bar(np.arange(1, K+1), np.squeeze(np.asarray(Error_test_ANN)), color=color_list)
+summaries_axes[1].set_xlabel('Outer fold')
+summaries_axes[1].set_xticks(np.arange(1, K+1))
+summaries_axes[1].set_ylabel('MSE')
+summaries_axes[1].set_title('Test mean-squared-error')
+plt.show()
 
 
-
-
-y_est = y_test_est.data.numpy(); 
-y_true = y_test.data.numpy();
+# ANN Plot of best CV fold (with minimum error)
+y_est = y_test_est_best.data.numpy(); 
+y_true = y_test_best.data.numpy();
 axis_range = [np.min([y_est.flatten(), y_true])-1,np.max([y_est.flatten(), y_true])+1]
 plt.plot(axis_range,axis_range,'k--')
 plt.plot(y_true, y_est,'ob',alpha=.25)
 plt.legend(['Perfect estimation','Model estimations'])
-plt.title('BNP of a country: estimated versus true value (for last CV-fold)')
+plt.title('BNP of a country: estimated versus true value (CV fold no. {0})'.format(int(K_best+1)))
 plt.ylim(axis_range); plt.xlim(axis_range)
 plt.xlabel('True value')
 plt.ylabel('Estimated value')
@@ -323,22 +320,32 @@ plt.grid()
 plt.show()
 
 
+# Plot the results for the BEST linear regression fold
+figure(k, figsize=(12,8))
+subplot(1,2,1)
+semilogx(lambdas,mean_w_vs_lambda_best.T[:,1:],'.-') # Don't plot the bias term
+xlabel('Regularization factor')
+ylabel('Mean Coefficient Values')
+grid()
+        
+subplot(1,2,2)
+title('Optimal lambda: 1e{0}'.format(np.log10(opt_lambda)))
+loglog(lambdas,train_err_vs_lambda_best.T,'b.-',lambdas,test_err_vs_lambda_best.T,'r.-')
+xlabel('Regularization factor')
+ylabel('Squared error (crossvalidation)')
+legend(['Train error','Validation error'])
+grid()
+show()
 
-# Display results
-print('Linear regression without feature selection:')
-print('- Training error: {0}'.format(Error_train.mean()))
-print('- Test error:     {0}'.format(Error_test.mean()))
-print('- R^2 train:     {0}'.format((Error_train_nofeatures.sum()-Error_train.sum())/Error_train_nofeatures.sum()))
-print('- R^2 test:     {0}\n'.format((Error_test_nofeatures.sum()-Error_test.sum())/Error_test_nofeatures.sum()))
-print('Regularized linear regression:')
-print('- Training error: {0}'.format(Error_train_rlr.mean()))
-print('- Test error:     {0}'.format(Error_test_rlr.mean()))
-print('- R^2 train:     {0}'.format((Error_train_nofeatures.sum()-Error_train_rlr.sum())/Error_train_nofeatures.sum()))
-print('- R^2 test:     {0}\n'.format((Error_test_nofeatures.sum()-Error_test_rlr.sum())/Error_test_nofeatures.sum()))
 
-#print('Weights in last fold:')
-#for m in range(M):
-#    print('{:>15} {:>15}'.format(attributeNames[m], np.round(w_rlr[m,-1],2)))
+
+
+
+
+
+
+
+
 
 
 # MAKE THE SUMMARY TABLE
