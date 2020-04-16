@@ -1,6 +1,7 @@
 # exercise 8.2.5
 import matplotlib.pyplot as plt
 import numpy as np
+import numpy.matlib 
 # =============================================================================
 # from scipy.io import loadmat
 # =============================================================================
@@ -50,15 +51,15 @@ C = len(classNames)
 X = stats.zscore(X);
 
 # Parameters for neural network classifier
-n_hidden_units = 5     # number of hidden units
-n_replicates = 10       # number of networks trained in each k-fold
+n_hidden_units = 3     # number of hidden units
+n_replicates = 5       # number of networks trained in each k-fold
 max_iter = 10000         # stop criterion 2 (max epochs in training)
 
 # K-fold crossvalidation
-K = 10            # only five folds to speed up this example
+K = 5            # only five folds to speed up this example
 CV = model_selection.KFold(K, shuffle=True)
 # Make figure for holding summaries (errors and learning curves)
-summaries, summaries_axes = plt.subplots(1,2, figsize=(10,5))
+summaries, summaries_axes = plt.subplots(1,3, figsize=(15,5))
 # Make a list for storing assigned color of learning curve for up to K=10
 color_list = ['tab:orange', 'tab:green', 'tab:purple', 'tab:brown', 'tab:pink',
               'tab:gray', 'tab:olive', 'tab:cyan', 'tab:red', 'tab:blue']
@@ -73,8 +74,11 @@ model = lambda: torch.nn.Sequential(
                     )
 loss_fn = torch.nn.CrossEntropyLoss() ### torch cross entropy loss
 
+y_base = np.zeros([K]).astype(object)
+
 print('Training model of type:\n\n{}\n'.format(str(model())))
 errors = [] # make a list for storing generalizaition error in each loop
+errors_base = [] # make a list for storing generalizaition error in each loop
 for k, (train_index, test_index) in enumerate(CV.split(X,y)): 
     print('\nCrossvalidation fold: {0}/{1}'.format(k+1,K))    
     
@@ -83,6 +87,9 @@ for k, (train_index, test_index) in enumerate(CV.split(X,y)):
     y_train = torch.Tensor(y[train_index]).type(torch.LongTensor)
     X_test = torch.Tensor(X[test_index,:])
     y_test = torch.Tensor(y[test_index]).type(torch.LongTensor)
+    
+    # Calculate baseline as mode of the training set
+    y_base = ss.mode(y_train.data.numpy())
     
     # Train the net on training data
     net, final_loss, learning_curve = train_neural_net(model,
@@ -106,14 +113,22 @@ for k, (train_index, test_index) in enumerate(CV.split(X,y)):
     softmax_logits = net(torch.tensor(X_test, dtype=torch.float))
     # Get the estimated class as the class with highest probability (argmax on softmax_logits)
     y_test_est = (torch.max(softmax_logits, dim=1)[1]).to(torch.uint8)
+    
+    # Determine baseline test set based on training set size and y_base value
+    y_base_est = np.matlib.repmat(y_base,y_test.data.numpy().size,1)
 
 
+    
     # Determine errors and errors
     y_test = y_test.to(torch.uint8)
 
     e = y_test_est != y_test
     error_rate = (sum(e).type(torch.float)/len(y_test)).data.numpy()
     errors.append(error_rate) # store error rate for current CV fold 
+    
+    e_base =  np.equal(y_base_est.flatten(),y_test.data.numpy().flatten())
+    error_rate_base = sum(e_base)/len(y_test)
+    errors_base.append(error_rate_base) # store error rate for current CV fold 
     
     # Display the learning curve for the best net in the current fold
     h, = summaries_axes[0].plot(learning_curve, color=color_list[k])
@@ -127,8 +142,17 @@ for k, (train_index, test_index) in enumerate(CV.split(X,y)):
 summaries_axes[1].bar(np.arange(1, K+1), np.squeeze(np.asarray(errors)), color=color_list)
 summaries_axes[1].set_xlabel('Fold');
 summaries_axes[1].set_xticks(np.arange(1, K+1))
+summaries_axes[1].set(xlim=(1/2, K+1/2), ylim=(0, 1))
 summaries_axes[1].set_ylabel('Error rate');
-summaries_axes[1].set_title('Test misclassification rates')
+summaries_axes[1].set_title('Test misclassification rates ANN')
+
+# Display the error rate across folds
+summaries_axes[2].bar(np.arange(1, K+1), np.squeeze(np.asarray(errors_base)), color=color_list)
+summaries_axes[2].set_xlabel('Fold');
+summaries_axes[2].set_xticks(np.arange(1, K+1))
+summaries_axes[2].set(xlim=(1/2, K+1/2), ylim=(0, 1))
+summaries_axes[2].set_ylabel('Error rate');
+summaries_axes[2].set_title('Test misclassification rates baseline')
 
 print('Diagram of best neural net in last fold:')
 weights = [net[i].weight.data.numpy().T for i in [0,2]]
