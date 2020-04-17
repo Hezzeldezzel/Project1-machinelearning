@@ -30,7 +30,6 @@ for z in range(len(slettes)):
     attributeNames = np.delete(attributeNames,var)
 
 N, M = X.shape
-C = 2
 
 
 # Parameters for neural network classifier

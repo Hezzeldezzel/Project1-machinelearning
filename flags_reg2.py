@@ -12,6 +12,10 @@ import torch
 from toolbox_02450 import train_neural_net, draw_neural_net
 from flags_load_data import Xstand, attributeNames
 
+import scipy.stats as st
+from scipy.stats import norm
+
+
 import time
 
 time_start = time.clock()
@@ -19,7 +23,7 @@ time_start = time.clock()
 # Import split as used in other assignment
 #from flags_reg import CV
 
-var = np.where(attributeNames=='BNP')[0][0]
+var = np.where(attributeNames=='AREA')[0][0]
 
 # Ændrer navnet på de standardiserede data
 X = Xstand
@@ -45,9 +49,9 @@ M = M+1
 
 ## Crossvalidation
 # Create crossvalidation partition for evaluation
-K = 3
+K = 10
+internal_cross_validation = K
 CV = model_selection.KFold(K, shuffle=True)
-#CV = model_selection.KFold(K, shuffle=False)
 
 # Values of lambda
 lambdas = np.power(10.,range(-5,9))
@@ -64,20 +68,19 @@ Error_test_nofeatures = np.empty((K,1))
 w_rlr = np.empty((M,K))
 mu = np.empty((K, M-1))
 sigma = np.empty((K, M-1))
-w_noreg = np.empty((M,K))
-
+w_noreg = np.empty((M,internal_cross_validation))
 
 ### ANN ###
 
 
 # Parameters for neural network classifier
-n_replicates = 2        # number of networks trained in each k-fold
-max_iter = 5000
+n_replicates = 5        # number of networks trained in each k-fold
+max_iter = 2000
 
-hidden_units = [1,2,3]
+hidden_units = [1,2,3,4,5]
 
 # Setup figure for display of learning curves and error rates in fold
-summaries, summaries_axes = plt.subplots(1,2, figsize=(10,5))
+summaries, summaries_axes = plt.subplots(1,2,figsize=(10,5))
 # Make a list for storing assigned color of learning curve for up to K=10
 color_list = ['tab:orange', 'tab:green', 'tab:purple', 'tab:brown', 'tab:pink',
               'tab:gray', 'tab:olive', 'tab:cyan', 'tab:red', 'tab:blue']
@@ -103,17 +106,19 @@ for train_index, test_index in CV.split(X,y):
     y_train = y[train_index]
     X_test = X[test_index]
     y_test = y[test_index]
-    internal_cross_validation = K
-    
+
+  
     
     ### RLR VALIDATE ####
     #opt_val_err, opt_lambda, mean_w_vs_lambda, train_err_vs_lambda, test_err_vs_lambda = rlr_validate(X_train, y_train, lambdas, internal_cross_validation)
     cvf = internal_cross_validation
-    CV2 = model_selection.KFold(cvf, shuffle=False)
+    CV2 = model_selection.KFold(cvf, shuffle=True)
     M = X.shape[1]
     w = np.empty((M,cvf,len(lambdas)))
-    train_error = np.empty((cvf,len(lambdas)))
-    test_error = np.empty((cvf,len(lambdas)))
+    train_error = np.zeros((cvf,len(lambdas)))
+    test_error = np.zeros((cvf,len(lambdas)))
+    train_error_noreg = np.zeros(internal_cross_validation)
+    test_error_noreg = np.zeros(internal_cross_validation)
     f = 0
     y = y.squeeze()
     for train_index2, test_index2 in CV2.split(X_train,y_train):
@@ -123,11 +128,11 @@ for train_index, test_index in CV.split(X,y):
         y_test2 = y_train[test_index2]
         
         # Standardize the training and set set based on training set moments
-        mu2 = np.mean(X_train2[:, 1:], 0)
-        sigma2 = np.std(X_train2[:, 1:], 0)
-        
-        X_train2[:, 1:] = (X_train2[:, 1:] - mu2) / sigma2
-        X_test2[:, 1:] = (X_test2[:, 1:] - mu2) / sigma2
+#        mu2 = np.mean(X_train2[:, 1:], 0)
+#        sigma2 = np.std(X_train2[:, 1:], 0)
+#        
+#        X_train2[:, 1:] = (X_train2[:, 1:] - mu2) / sigma2
+#        X_test2[:, 1:] = (X_test2[:, 1:] - mu2) / sigma2
         
         # precompute terms
         Xty2 = X_train2.T @ y_train2
@@ -142,6 +147,7 @@ for train_index, test_index in CV.split(X,y):
             train_error[f,l] = np.power(y_train2-X_train2 @ w[:,f,l].T,2).mean(axis=0)
             test_error[f,l] = np.power(y_test2-X_test2 @ w[:,f,l].T,2).mean(axis=0)
         
+       
         
         # Den her skal laves ligesom de ovenover train og test error
         error_ANN = np.empty((cvf,len(hidden_units)+1)) # make a list for storing generalizaition error in each loop
@@ -181,10 +187,14 @@ for train_index, test_index in CV.split(X,y):
             print('\n\tBest loss: {}\n'.format(final_loss))
             
             # Determine estimated class labels for test set
+            y_train_est = net(X_train2)
             y_test_est = net(X_test2)
             
             # Determine errors and errors
+            se_train = (y_train_est.float().data.numpy().flatten()-y_train2.float().data.numpy().flatten())**2 # squared error
             se = (y_test_est.float().data.numpy().flatten()-y_test2.float().data.numpy().flatten())**2 # squared error
+            me_train = sum(se_train)/len(y_train2)
+            print("training MSE: " , me_train)
             mse = (sum(se)/len(y_test2)) #mean
             error_ANN[f,h] = mse # store error rate for current CV fold 
             
@@ -208,7 +218,12 @@ for train_index, test_index in CV.split(X,y):
     opt_h = hidden_units[np.argmin(np.mean(error_ANN,axis=0))]
     opt_h_fold[k] = opt_h
 
-
+#    # Standerdize
+#    mu[k, :] = np.mean(X_train[:, 1:], 0)
+#    sigma[k, :] = np.std(X_train[:, 1:], 0)
+#    
+#    X_train[:, 1:] = (X_train[:, 1:] - mu[k, :] ) / sigma[k, :] 
+#    X_test[:, 1:] = (X_test[:, 1:] - mu[k, :] ) / sigma[k, :]  
     
     Xty = X_train.T @ y_train
     XtX = X_train.T @ X_train
@@ -256,7 +271,6 @@ for train_index, test_index in CV.split(X,y):
                                                        n_replicates=n_replicates,
                                                        max_iter=max_iter)
     
-#    print('\n\tBest loss: {}\n'.format(final_loss))
     
     # Determine estimated class labels for test set
     y_test_est = net(X_test)
@@ -283,6 +297,7 @@ for train_index, test_index in CV.split(X,y):
         mean_w_vs_lambda_best = mean_w_vs_lambda
         train_err_vs_lambda_best = train_err_vs_lambda
         test_err_vs_lambda_best = test_err_vs_lambda
+        lambda_best = opt_lambda
 
     # Save the data if the current fold is the fold with minimum error (ANN model)
     if Error_test_ANN[k] < Error_test_ANN_best:
@@ -296,11 +311,14 @@ for train_index, test_index in CV.split(X,y):
     k+=1
 ### OUTER LOOP END HERE ###
 
+
+
+
 summaries_axes[1].bar(np.arange(1, K+1), np.squeeze(np.asarray(Error_test_ANN)), color=color_list)
 summaries_axes[1].set_xlabel('Outer fold')
 summaries_axes[1].set_xticks(np.arange(1, K+1))
 summaries_axes[1].set_ylabel('MSE')
-summaries_axes[1].set_title('Test mean-squared-error')
+summaries_axes[1].set_title('Test mean-squared-error of ANN model')
 plt.show()
 
 
@@ -311,7 +329,7 @@ axis_range = [np.min([y_est.flatten(), y_true])-1,np.max([y_est.flatten(), y_tru
 plt.plot(axis_range,axis_range,'k--')
 plt.plot(y_true, y_est,'ob',alpha=.25)
 plt.legend(['Perfect estimation','Model estimations'])
-plt.title('BNP of a country: estimated versus true value (CV fold no. {0})'.format(int(K_best+1)))
+plt.title('Area of a country: estimated versus true value (CV fold no. {0})'.format(int(K_best+1)))
 plt.ylim(axis_range); plt.xlim(axis_range)
 plt.xlabel('True value')
 plt.ylabel('Estimated value')
@@ -320,7 +338,7 @@ plt.grid()
 plt.show()
 
 
-# Plot the results for the BEST linear regression fold
+# Plot the results of linear regression
 figure(k, figsize=(12,8))
 subplot(1,2,1)
 semilogx(lambdas,mean_w_vs_lambda_best.T[:,1:],'.-') # Don't plot the bias term
@@ -329,7 +347,7 @@ ylabel('Mean Coefficient Values')
 grid()
         
 subplot(1,2,2)
-title('Optimal lambda: 1e{0}'.format(np.log10(opt_lambda)))
+title('Optimal lambda: 1e{0}'.format(np.log10(lambda_best)))
 loglog(lambdas,train_err_vs_lambda_best.T,'b.-',lambdas,test_err_vs_lambda_best.T,'r.-')
 xlabel('Regularization factor')
 ylabel('Squared error (crossvalidation)')
@@ -338,14 +356,16 @@ grid()
 show()
 
 
+#summaries_axes[1].bar(np.arange(1, K+1), np.squeeze(np.asarray(Error_test_rlr)), color=color_list)
+#summaries_axes[1].set_xlabel('Outer fold')
+#summaries_axes[1].set_xticks(np.arange(1, K+1))
+#summaries_axes[1].set_ylabel('MSE')
+#summaries_axes[1].set_title('Test mean-squared-error of RLR model')
+#plt.show()
 
-
-
-
-
-
-
-
+#print('Weights in last fold:')
+#for m in range(M):
+#    print('{:>15} {:>15}'.format(attributeNames[m], np.round(w_rlr[m,-1],2)))
 
 
 # MAKE THE SUMMARY TABLE
@@ -377,9 +397,48 @@ print(dash)
 
 
 
+
 time_elapsed = (time.clock() - time_start)
 print('The script execution time was: ',time_elapsed/60,' min')
 
 
 
+# STATISTICS
 
+alpha = 0.05
+
+Lowerconf=np.zeros(3)
+Upperconf=np.zeros(3)
+pvalue=np.zeros(3)
+
+# ANN vs. RLR
+z = Error_test_ANN-Error_test_rlr
+CI = st.t.interval(1-alpha, len(z)-1, loc=np.mean(z), scale=st.sem(z)) # Confidence interval
+p = st.t.cdf( -np.abs( np.mean(z) )/st.sem(z), df=len(z)-1) # p-value
+Lowerconf[0] = CI[0]
+Upperconf[0] = CI[1]
+pvalue[0] = p
+
+# ANN vs baseline
+z = Error_test_ANN-Error_test
+CI = st.t.interval(1-alpha, len(z)-1, loc=np.mean(z), scale=st.sem(z)) # Confidence interval
+p = st.t.cdf( -np.abs( np.mean(z) )/st.sem(z), df=len(z)-1) # p-value
+Lowerconf[1] = CI[0]
+Upperconf[1] = CI[1]
+pvalue[1] = p
+
+# RLR vs baseline
+z = Error_test_rlr-Error_test
+CI = st.t.interval(1-alpha, len(z)-1, loc=np.mean(z), scale=st.sem(z)) # Confidence interval
+p = st.t.cdf( -np.abs( np.mean(z) )/st.sem(z), df=len(z)-1) # p-value
+Lowerconf[2] = CI[0]
+Upperconf[2] = CI[1]
+pvalue[2] = p
+
+
+print(dash)
+print("{:>15s}{:>15s}{:>15s}{:>15s}".format("","ANN-RLR","ANN-Base","Base-RLR"))
+print("{:>15s}{:>15f}{:>15f}{:>15f}".format("Lowerconf",Lowerconf[0],Lowerconf[1],Lowerconf[2]))
+print("{:>15s}{:>15f}{:>15f}{:>15f}".format("Upperconf",Upperconf[0],Upperconf[1],Upperconf[2]))
+print("{:>15s}{:>15f}{:>15f}{:>15f}".format("pvalue",pvalue[0],pvalue[1],pvalue[2]))
+print(dash)

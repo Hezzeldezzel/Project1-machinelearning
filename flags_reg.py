@@ -10,7 +10,7 @@ from toolbox_02450 import rlr_validate
 
 from flags_load_data import Xstand, attributeNames
 
-var = np.where(attributeNames=='BNP')[0][0]
+var = np.where(attributeNames=='AREA')[0][0]
 
 # Ændrer navnet på de standardiserede data
 X = Xstand
@@ -19,7 +19,7 @@ attributeNames = np.delete(attributeNames,var)
 y = Xstand[:,var]
 
 # Sletter følgende kolonner, da denne giver en singular matrix
-slettes = ['BOTR3','BOTR5']
+slettes = ['TOPL0', 'TOPL1', 'TOPL3', 'TOPL4', 'TOPL5', 'TOPL6', 'TOPL7','BOTR0','BOTR1','BOTR2','BOTR3','BOTR4','BOTR5','BOTR6','BOTR7']
 
 for z in range(len(slettes)):
     o = slettes[z]
@@ -38,7 +38,7 @@ M = M+1
 ## Crossvalidation
 # Create crossvalidation partition for evaluation
 K = 10
-CV = model_selection.KFold(K, shuffle=False)
+CV = model_selection.KFold(K, shuffle=True)
 #CV = model_selection.KFold(K, shuffle=False)
 
 # Values of lambda
@@ -50,8 +50,7 @@ Error_train = np.empty((len(lambdas),K))
 Error_test = np.empty((len(lambdas),K))
 Error_train_rlr = np.empty((len(lambdas),K))
 Error_test_rlr = np.empty((len(lambdas),K))
-Error_train_nofeatures = np.empty((len(lambdas),K))
-Error_test_nofeatures = np.empty((len(lambdas),K))
+
 w_rlr = np.empty((M,K))
 mu = np.empty((K, M-1))
 sigma = np.empty((K, M-1))
@@ -64,17 +63,13 @@ for train_index, test_index in CV.split(X,y):
     X_train = X[train_index]
     y_train = y[train_index]
     X_test = X[test_index]
-    y_test = y[test_index]  
-
-    # Standardize outer fold based on training set, and save the mean and standard
-    # deviations since they're part of the model (they would be needed for
-    # making new predictions) - for brevity we won't always store these in the scripts
-    #mu[k, :] = np.mean(X_train[:, 1:], 0)
-    #sigma[k, :] = np.std(X_train[:, 1:], 0)
+    y_test = y[test_index]   
     
-    #X_train[:, 1:] = (X_train[:, 1:] - mu[k, :] ) / sigma[k, :] 
-    #X_test[:, 1:] = (X_test[:, 1:] - mu[k, :] ) / sigma[k, :] 
-    
+#    mu[k, :] = np.mean(X_train[:, 1:], 0)
+#    sigma[k, :] = np.std(X_train[:, 1:], 0)
+#    
+#    X_train[:, 1:] = (X_train[:, 1:] - mu[k, :] ) / sigma[k, :] 
+#    X_test[:, 1:] = (X_test[:, 1:] - mu[k, :] ) / sigma[k, :]     
     
     Xty = X_train.T @ y_train
     XtX = X_train.T @ X_train
@@ -114,3 +109,21 @@ ylabel('Squared error (crossvalidation)')
 legend(['Train error','Validation error'])
 grid()
 show()
+
+
+# Check each fold
+#for i in range(0,K):
+#    print('K = {0}'.format(i+1))    
+#    subplot(1,1,1)
+#    loglog(lambdas,Error_train_rlr[:,i].T,'b.-',lambdas,Error_test_rlr[:,i].T,'r.-')
+#    xlabel('Regularization factor')
+#    ylabel('Squared error (crossvalidation)')
+#    legend(['Train error','Validation error'])
+#    grid()
+#    show()
+
+
+
+
+
+
